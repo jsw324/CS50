@@ -26,9 +26,9 @@ int main(int argc, char* argv[])
     // remember filenames
     char* infile = argv[2];
     char* outfile = argv[3];
-    int size = atoi(argv[1]);
+    int n = atoi(argv[1]);
     
-    if (size < 1 || size > 100) {
+    if (n < 1 || n > 100) {
         printf("Not within range");
         return 2;
     }
@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
     {
         fclose(inptr);
         fprintf(stderr, "Could not create %s.\n", outfile);
-        return 3;
+        return 3;       
     }
 
     // read infile's BITMAPFILEHEADER
@@ -71,19 +71,20 @@ int main(int argc, char* argv[])
         return 4;
     }
     
-    //save original width and height and increase by variable size
+    //save original width and height and increase by variable n
     int origWidth = bi.biWidth;
     int origHeight = bi.biHeight;
-    bi.biWidth = bi.biWidth * size;
-    bi.biHeight = bi.biHeight * size;
+    bi.biWidth = bi.biWidth * n;
+    bi.biHeight = bi.biHeight * n;
+    
     
     // determine padding for scanlines
     int origPadding = (4 - (origWidth * sizeof(RGBTRIPLE)) % 4) % 4;
     int padding =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
     
-     //need biSizeImage to be resized as well
-    
-    bi.biSizeImage = abs(bi.biHeight) * (bi.biWidth * sizeof(RGBTRIPLE)) + padding;
+     //need binImage to be rend as well
+    int imageSize = bi.biSizeImage - origPadding * abs(origHeight);
+    bi.biSizeImage = (imageSize * n * n) + padding * abs(bi.biHeight);
     bf.bfSize = (bi.biSizeImage + 54);
     
     
@@ -97,11 +98,12 @@ int main(int argc, char* argv[])
 
 
     // iterate over infile's scanlines
-    for (int i = 0; i < abs(origHeight); i++)
+    for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
     {
-        for (int n = 0; n < size; n++){
-            //skip padding
-            fseek(inptr, (54 + ((origWidth * 3 + origPadding) * i)), SEEK_SET);
+        if ( i % n != 0 ){
+             fseek(inptr, -(origWidth * sizeof(RGBTRIPLE) + origPadding), SEEK_CUR);
+        }
+        for (int z = 0; z < n; z++){
             
             // iterate over pixels in scanline
              for (int j = 0; j < origWidth; j++)
@@ -115,13 +117,13 @@ int main(int argc, char* argv[])
                 fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
                 
                 // write RGB triple to outfile
-                for (int b = 0; b < size; b++){
+                for (int b = 0; b < n; b++){
                 fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
                 }
             }
         }
      //   // skip over padding, if any
-       // fseek(inptr, padding, SEEK_CUR);
+        fseek(inptr, padding, SEEK_CUR);
 
         // then add it back (to demonstrate how)
         for (int k = 0; k < padding; k++)

@@ -1,0 +1,23 @@
+0.  GIF - 8-bit color, BMP - 1,4, 8, 16, 24 and 32 bit color, JPEG - 24-bit color.
+1.  GIF
+2.  lossy compression means that some data is lost in the compression.
+3.  JPEG
+4.  The filename is modified to signify that the file has been deleted and the clusters that contain the data are marked 'free' to be used again.  However, the actual file is never touched.
+5.  Destroy the hard drive, overwrite the hard drive to ensure those files are overwritten with something non-sensitive.
+6.  stdint.h helps identify and decare the nubmer of bits necessary to store an ints value.
+7.  unsigned int's of either 8 or 16 bits guarantee a positive number and a granular level of control over the bits.  Signed bits can be negative and also grant control
+8.  BYTE = 8 bits;
+    DWORD = 32 bit unsigned integer
+    LONG = 32 bits
+    WORD = 16 bits
+9.  the characters B and M respectively.  0x42 0x4D in hexadecimal
+10. bfsize is the number of bytes required by the bitmap file.  bisize is the number of bytes required by the structure.
+11. That the picture is top down and the origin is the upper left corner
+12. biBitCount
+13. fopen returns NULL if the file does not exist.
+14. THe blocks parameter corresponds to the number of blocks read in. 
+15. 3
+16. Changes the offset of the file pointer fp
+17. used with fseek in the whence argument to specify the current file.
+18. Rick Astley
+
