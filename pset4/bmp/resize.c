@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
     
      //need binImage to be rend as well
    
-    bi.biSizeImage = ((bi.biWidth + padding) * abs(bi.biHeight)) * 3;
+    bi.biSizeImage = (abs(bi.biHeight) * bi.biWidth * 3) + (abs(bi.biHeight) * padding);
     bf.bfSize = sizeof(bi) + sizeof(bf) + bi.biSizeImage;
     
     
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
     // write outfile's BITMAPINFOHEADER
     fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, outptr);
     
-    int tracker;
+    int counter;
     
     //storage for buffer to hold scanline
     RGBTRIPLE *buffer = malloc(sizeof(RGBTRIPLE) * (bi.biWidth));
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
     // iterate over infile's scanlines
     for (int i = 0, biHeight = abs(origHeight); i < biHeight; i++)
     {
-        tracker = 0;
+        counter = 0;
             // iterate over pixels in scanline
              for (int j = 0; j < origWidth; j++)
             {
@@ -115,8 +115,8 @@ int main(int argc, char* argv[])
                 
                 // write RGB triple to outfile
                 for (int b = 0; b < n; b++){
-                    *(buffer+(tracker)) = triple;
-                    tracker++;
+                    *(buffer+(counter)) = triple;
+                    counter++;
                 }
             }
     
