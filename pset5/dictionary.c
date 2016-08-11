@@ -32,16 +32,14 @@ bool check(const char* word)
  */
 bool load(const char* dictionary)
 {
-   // char word[LENGTH + 1];
-   
-    
+
     typedef struct node
     {
-        char *word;
+        char word[LENGTH + 1];
         struct node* next;
     } node;
     
-    char* hashtable[HASHSIZE];
+    node* hashtable[HASHSIZE];
     
     FILE* fp = fopen(dictionary, "r");
     if (fp == NULL)
@@ -51,44 +49,46 @@ bool load(const char* dictionary)
     }
     
     //initialize newWord
-    
-    char* newWord = NULL;
+    //char* newWord = NULL;
     
     //get words in dictionary one by one
-    while(fscanf(fp, "%s\n", newWord) != EOF);
+    while(!feof(fp))
     {
-        int wordLength = 0;
-        while(newWord[wordLength] != '\0')
-        {
-            wordLength++;
-        }
-        
-       
-        
-        fgets(newWord, wordLength, fp);
-        
+        //malloc memory for new_node and head
         node* new_node = malloc(sizeof(node));
         node* head = malloc(sizeof(node));
-        wordCount++;
-        
-        new_node->word = newWord;
-        new_node->next = NULL;
        
-        int hashIndex = hash(newWord);
+        //based on word length, saving to variable newWord
+        fscanf(fp, "%s", new_node->word);
         
+        //new_node->word = newWord;
+        //new_node->next = NULL;
+       
+        //set hashIndex to results of hash function
+        int hashIndex = hash(new_node->word);
+        
+        //if hashtable at index hashIndex is not null, set it to newWord and set pointer to point at it (i.e. first slot)
         if(hashtable[hashIndex] == NULL)
         {
-            hashtable[hashIndex] = newWord;
-            new_node->word = newWord;
-            head->next = new_node;
+            hashtable[hashIndex] = new_node;
+            head = hashtable[hashIndex];
+            head->next = NULL;
+            wordCount++;
+            
         } else {
-            new_node->next = head;
-            head = new_node;
+            new_node->next = head->next;
+            head->next = new_node;
+            wordCount++;
         }
        
     }
+    if(feof(fp)){
+        fclose(fp);
+        return true;
+    }
 
     return false;
+    fclose(fp);
 }
 
 /**
