@@ -11,20 +11,47 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "dictionary.h"
+#include <string.h>
+#include <strings.h>
+#include <ctype.h>
 
 //prototype hash function
-int hash(char* key);
+int hash(const char* key);
+
+//initiate struct node
+typedef struct node
+    {
+        char word[LENGTH + 1];
+        struct node* next;
+    } node;
+    
+//initialize hashtable
+node* hashtable[HASHSIZE];
 
 //count dictionary words to return in size function
- int wordCount = 0;
+int wordCount = 0;
+
 
 /**
  * Returns true if word is in dictionary else false.
  */
 bool check(const char* word)
 {
-    // TODO
-    return false;
+  node* cursor = malloc(sizeof(node));
+  
+  int hashIndex = hash(word);
+  
+  cursor = hashtable[hashIndex];
+  
+  while(cursor != NULL)
+  {
+    if(strcasecmp(cursor->word, word) == 0)
+    {
+        return true;
+        cursor = cursor->next;
+    }
+  }
+  return false;
 }
 
 /**
@@ -32,15 +59,9 @@ bool check(const char* word)
  */
 bool load(const char* dictionary)
 {
-
-    typedef struct node
-    {
-        char word[LENGTH + 1];
-        struct node* next;
-    } node;
     
-    node* hashtable[HASHSIZE];
     
+    //open file in read mode and error check if it's null
     FILE* fp = fopen(dictionary, "r");
     if (fp == NULL)
     {
@@ -109,7 +130,7 @@ bool unload(void)
     return false;
 }
 
-int hash(char* key)
+int hash(const char* key)
 {
     //int keyLength = strlen(key);
     int counter = 0;
