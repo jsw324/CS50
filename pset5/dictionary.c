@@ -29,7 +29,7 @@ typedef struct node
 node* hashtable[HASHSIZE];
 
 //count dictionary words to return in size function
-int wordCount = 0;
+int wordCount = -1;
 
 
 /**
@@ -37,19 +37,28 @@ int wordCount = 0;
  */
 bool check(const char* word)
 {
+  char newWord[LENGTH + 1];
+  
+  strcpy(newWord, word);
+  
+  for(int i = 0; word[i]; i++)
+  {
+      newWord[i] = tolower(newWord[i]);
+  }
+    
   node* cursor = malloc(sizeof(node));
   
-  int hashIndex = hash(word);
+  int hashIndex = hash(newWord);
   
   cursor = hashtable[hashIndex];
   
   while(cursor != NULL)
   {
-    if(strcasecmp(cursor->word, word) == 0)
+    if(strcmp(cursor->word, newWord) == 0)
     {
         return true;
-        cursor = cursor->next;
     }
+    cursor = cursor->next;
   }
   return false;
 }
@@ -69,9 +78,6 @@ bool load(const char* dictionary)
         return 1;
     }
     
-    //initialize newWord
-    //char* newWord = NULL;
-    
     //get words in dictionary one by one
     while(!feof(fp))
     {
@@ -81,24 +87,21 @@ bool load(const char* dictionary)
        
         //based on word length, saving to variable newWord
         fscanf(fp, "%s", new_node->word);
-        
-        //new_node->word = newWord;
-        //new_node->next = NULL;
        
         //set hashIndex to results of hash function
         int hashIndex = hash(new_node->word);
         
-        //if hashtable at index hashIndex is not null, set it to newWord and set pointer to point at it (i.e. first slot)
+        //if hashtable at index hashIndex is null, set it to newWord and set pointer to point at it (i.e. first slot)
         if(hashtable[hashIndex] == NULL)
         {
             hashtable[hashIndex] = new_node;
-            head = hashtable[hashIndex];
-            head->next = NULL;
+            new_node->next = NULL;
+            head = new_node;
             wordCount++;
-            
         } else {
-            new_node->next = head->next;
-            head->next = new_node;
+            new_node->next = hashtable[hashIndex];
+            head = new_node;
+            hashtable[hashIndex] = new_node;
             wordCount++;
         }
        
@@ -126,7 +129,19 @@ unsigned int size(void)
  */
 bool unload(void)
 {
-    // TODO
+    for (int i = 0; i < 101; i++)
+    {
+        node* cursor = hashtable[i];
+        
+        while (cursor != NULL)
+        {
+            node* temp = cursor;
+            cursor = cursor->next;
+            free(temp);
+        }
+        return true;
+    }
+    
     return false;
 }
 
