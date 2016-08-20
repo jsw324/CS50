@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
         // check whether client has connected
         if (connected())
         {
-            // check for request
+            // check for request - parses HTTP request from client
             if (request(&message, &length))
             {
                 // extract message's request-line
@@ -618,7 +618,15 @@ bool load(FILE* file, BYTE** content, size_t* length)
  */
 const char* lookup(const char* path)
 {
-    // TODO
+    char* pt =   malloc(sizeof(path));
+    const char dot = '.';
+    char* id;
+    
+    strcpy(pt, path);
+    
+    id = strrchr(path, dot);
+    
+   
     return NULL;
 }
 
