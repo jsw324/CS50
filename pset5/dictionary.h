@@ -15,7 +15,7 @@
 // maximum length for a word
 // (e.g., pneumonoultramicroscopicsilicovolcanoconiosis)
 #define LENGTH 45
-#define HASHSIZE 1024
+#define HASHSIZE 2048
 
 /**
  * Returns true if word is in dictionary else false.

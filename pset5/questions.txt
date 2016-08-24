@@ -1,0 +1,14 @@
+0.  A 45 character word used as the upper bound to our spellchecker dictionary word lenght limit.
+1.  Get resource usage
+2.  15
+3.  For speed.
+4.  Main opens the file then has a for loop where it reads each individual character, checks to make sure they're alpha, then adds them to a 'word' array
+    until it hits the "\0" character indicated the end of the word.  At that point it calls the check function where it assigns the results to
+    a BOOL variable called 'misspelled' - If the word is spelled incorrectly it prints out the misspeclled word.
+5.  I believe fgetc makes it easier to error check the words against having non-alpha chracters.  Additionally it likely makes it easier to
+    spellcheck them using a trie.
+6.  The constants can't change the values they are pointing at.
+7.  I used a hashtable where each index within the table has a linked list that resolves colissions.  Each 'collided' node is inserted at the head of the list.
+8.  It was OK everywhere besides 'check' which was over 1 second.
+9.  I changed the size of the hashtable to make for quicker checking and was able to get it under .15 seconds.
+10. Yes, I feel a trie might have been a better solution than a hashtable. 
