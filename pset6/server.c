@@ -618,13 +618,12 @@ bool load(FILE* file, BYTE** content, size_t* length)
  */
 const char* lookup(const char* path)
 {
-    char* pt =   malloc(sizeof(path));
-    const char dot = '.';
-    char* id;
-    
-    strcpy(pt, path);
-    
-    id = strrchr(path, dot);
+    if (extension != NULL)
+    {
+        if (strcasecmp("css", extension) == 0)
+        return "text/css";
+        
+    }
     
    
     return NULL;
