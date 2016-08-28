@@ -444,7 +444,26 @@ char* htmlspecialchars(const char* s)
  */
 char* indexes(const char* path)
 {
-    // TODO
+    //check path
+    if (path != NULL) {
+        FILE *file;
+        //allocate memory
+        char* directory = malloc(sizeof(char*));
+       
+        file = fopen("index.php", "r");
+        //if file is not null return directory path
+        if (file != NULL) return directory = "/path/to/a/directory/index.php";
+        //check for index
+        else {
+            fclose(file);
+            file = fopen("index.html", "r");
+            //if there's an index return the directory path
+            if (file != NULL) return directory = "/path/to/a/directory/index.html"; 
+        } 
+        fclose(file);
+        //free directory
+        free(directory);
+    }
     return NULL;
 }
 
@@ -609,10 +628,22 @@ void list(const char* path)
  */
 bool load(FILE* file, BYTE** content, size_t* length)
 {
-    // TODO
+    //check if file exists
+    if (file == NULL) return false;
+    
+    BYTE buffer[BYTES];
+    //read line into buffer
+    fread(buffer, sizeof(buffer), BYTES, file);
+    
+    *content = &buffer[0];
+   
+    *length = BYTES;
+    // free buffer
+    free(buffer);
+    //close file
+    fclose(file);
     return false;
 }
-
 /**
  * Returns MIME type for supported paths, else NULL.
  */
@@ -660,8 +691,55 @@ const char* lookup(const char* path)
  */
 bool parse(const char* line, char* abs_path, char* query)
 {
-    // TODO
-    error(501);
+    //copy line
+    char** cpyLine = malloc(sizeof(char**));
+
+    strcpy(*cpyLine, line);
+   
+    char* method = malloc(sizeof(char*));
+    method = strsep(cpyLine, " ");
+    //check that method is GET or terminate program
+    if (strcasecmp(method, "GET") != 0) {
+        error(405);
+        return false;
+    }
+    
+    abs_path = strsep(cpyLine, "]" + 1);
+    
+    if (abs_path[0] != '/') {
+        error(501);
+        return false;
+    }
+    char* HTTP_version = malloc(sizeof(char*));
+    HTTP_version = strsep(cpyLine, "\\");
+    if(strcasecmp(HTTP_version, "HTTP/1.1") != 0) {
+        error(505);
+        return false;
+    }
+    
+    char* abs = abs_path;
+    if (strchr("\"", *abs)) {
+        error(400);
+        return false;
+    }
+    
+    char** copyofAbs_path = malloc(sizeof(char**));
+    //copy line
+    strcpy(*copyofAbs_path, abs_path);
+    for (int i = 0, n = strlen(*copyofAbs_path); i < n; i++) {
+        for (int j = 0, m = strlen(*copyofAbs_path) - i; j < m; j++) {
+            if (*copyofAbs_path[i] == '/' && *copyofAbs_path[i+1] == '?') query[j] = *copyofAbs_path[i+2];
+            if (*copyofAbs_path[i] == '/' && *copyofAbs_path[i+1] != '?') query[j] = *copyofAbs_path[i+1];
+            // if (strlen(query)) < 1) query = "";
+            if (query[j] == '\0') break;
+        }
+    }
+    
+    free(HTTP_version);
+    free(abs);
+    free(method);
+    free(cpyLine);
+    free(copyofAbs_path);
     return false;
 }
 
