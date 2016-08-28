@@ -614,17 +614,41 @@ bool load(FILE* file, BYTE** content, size_t* length)
 }
 
 /**
- * Returns MIME type for supported extensions, else NULL.
+ * Returns MIME type for supported paths, else NULL.
  */
 const char* lookup(const char* path)
 {
-    if (extension != NULL)
+    if (path != NULL)
     {
-        if (strcasecmp("css", extension) == 0)
-        return "text/css";
-        
+        if ((strcmp(path, "css") || strcmp(path, "CSS")) == 0)
+        {
+            return "text/css"; 
+        }
+        if ((strcmp(path, "html") || strcmp(path, "HTML")) == 0)
+        {
+            return "text/html"; 
+        }
+        if ((strcmp(path, "gif") || strcmp(path, "GIF")) == 0)
+        {
+            return "image/gif"; 
+        }
+        if ((strcmp(path, "ico") || strcmp(path, "ICO")) == 0)
+        {
+            return "image/x-icon"; 
+        }
+        if ((strcmp(path, "jpg") || strcmp(path, "JPG")) == 0)
+        {
+            return "image/jpeg"; 
+        }
+        if ((strcmp(path, "js") || strcmp(path, "JS")) == 0)
+        {
+            return "text/javascript"; 
+        }
+        if ((strcmp(path, "png") || strcmp(path, "PNG")) == 0)
+        {
+            return "image/png"; 
+        }
     }
-    
    
     return NULL;
 }
