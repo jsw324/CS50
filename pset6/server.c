@@ -442,29 +442,42 @@ char* htmlspecialchars(const char* s)
  * Checks, in order, whether index.php or index.html exists inside of path.
  * Returns path to first match if so, else NULL.
  */
+
 char* indexes(const char* path)
 {
-    //check path
-    if (path != NULL) {
-        FILE *file;
-        //allocate memory
-        char* directory = malloc(sizeof(char*));
-       
-        file = fopen("index.php", "r");
-        //if file is not null return directory path
-        if (file != NULL) return directory = "/path/to/a/directory/index.php";
-        //check for index
-        else {
-            fclose(file);
-            file = fopen("index.html", "r");
-            //if there's an index return the directory path
-            if (file != NULL) return directory = "/path/to/a/directory/index.html"; 
-        } 
-        fclose(file);
-        //free directory
-        free(directory);
-    }
-    return NULL;
+    int path_length = strlen(path) + 1;
+
+
+char* ind_php = "/index.php";
+char* ind_html = "/index.html";
+
+char* inx1 = malloc(path_length + 12);
+
+if (inx1 == NULL) return NULL;
+
+strcpy(inx1, path);
+strcat(inx1, ind_php);
+
+if (access(inx1, F_OK) != -1) {
+    return inx1;
+} else {
+    free(inx1);
+}
+
+char* inx = malloc(path_length + 12);
+
+if (inx == NULL) return NULL;
+
+strcpy(inx, path);
+strcat(inx, ind_html);
+
+if (access(inx, F_OK) != -1) {
+    return inx;
+} else {
+    free(inx);
+}
+
+return NULL;   
 }
 
 /**
@@ -628,22 +641,32 @@ void list(const char* path)
  */
 bool load(FILE* file, BYTE** content, size_t* length)
 {
-    //check if file exists
-    if (file == NULL) return false;
-    
-    BYTE buffer[BYTES];
-    //read line into buffer
-    fread(buffer, sizeof(buffer), BYTES, file);
-    
-    *content = &buffer[0];
-   
-    *length = BYTES;
-    // free buffer
-    free(buffer);
-    //close file
-    fclose(file);
-    return false;
+    // allocate memory on the heap
+
+    *content = NULL;
+    *length = 0;
+
+    char* file_content = malloc(sizeof(char));
+    if (file_content == NULL) 
+    {
+        return false; 
+    }
+
+    int i = 0;
+    for (int c = fgetc(file); c != EOF; c = fgetc(file))
+    {
+        file_content[i] = (char) c;
+        i++;
+        file_content = (char*) realloc(file_content, sizeof(char)*(i+1));
+    }
+    // add terminating string and increase the size by one
+
+    // stores the address of the first byte of file contant in heap
+    *content = file_content;
+    *length = i;
+    return true;
 }
+
 /**
  * Returns MIME type for supported paths, else NULL.
  */
