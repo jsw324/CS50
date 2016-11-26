@@ -672,38 +672,47 @@ bool load(FILE* file, BYTE** content, size_t* length)
  */
 const char* lookup(const char* path)
 {
-    if (path != NULL)
+    // Store the extension in a variable
+    char* extension = strrchr(path, '.');
+    
+    // if it exists, in case strrchr doesn't really find anything
+    if(extension != NULL)
     {
-        if ((strcmp(path, "css") || strcmp(path, "CSS")) == 0)
+        // compare and match the extension with the supported list
+        if(strcasecmp(extension, ".css") == 0)
         {
-            return "text/css"; 
+            return "text/css";   
         }
-        if ((strcmp(path, "html") || strcmp(path, "HTML")) == 0)
+        else if(strcasecmp(extension, ".html") == 0)
         {
-            return "text/html"; 
+            return "text/html";
         }
-        if ((strcmp(path, "gif") || strcmp(path, "GIF")) == 0)
+        else if(strcasecmp(extension, ".gif") == 0)
         {
-            return "image/gif"; 
+            return "image/gif";
         }
-        if ((strcmp(path, "ico") || strcmp(path, "ICO")) == 0)
+        else if(strcasecmp(extension, ".ico") == 0)
         {
-            return "image/x-icon"; 
+            return "image/x-icon";
         }
-        if ((strcmp(path, "jpg") || strcmp(path, "JPG")) == 0)
+        else if(strcasecmp(extension, ".jpg") == 0)
         {
-            return "image/jpeg"; 
+            return "image/jpeg";
         }
-        if ((strcmp(path, "js") || strcmp(path, "JS")) == 0)
+        else if(strcasecmp(extension, ".js") == 0)
         {
-            return "text/javascript"; 
+            return "text/javascript";
         }
-        if ((strcmp(path, "png") || strcmp(path, "PNG")) == 0)
+        else if(strcasecmp(extension, ".php") == 0)
         {
-            return "image/png"; 
+            return "text/x-php";
+        }
+        else if(strcasecmp(extension, ".png") == 0)
+        {
+            return "image/png";
         }
     }
-   
+    // if not found in list or doesn't exist, return NULL
     return NULL;
 }
 
@@ -714,58 +723,115 @@ const char* lookup(const char* path)
  */
 bool parse(const char* line, char* abs_path, char* query)
 {
-    //copy line
-    char** cpyLine = malloc(sizeof(char**));
-
-    strcpy(*cpyLine, line);
-   
-    char* method = malloc(sizeof(char*));
-    method = strsep(cpyLine, " ");
-    //check that method is GET or terminate program
-    if (strcasecmp(method, "GET") != 0) {
+    /* method SP request-target SP HTTP-version CRLF
+    * GET /path/to/file.extension?query  HTTP/1.1\r\n
+    * very likely inputs
+    * GET /path/to/file.extension  HTTP/1.1\r\n
+    * GET path/to/file.extension?query  HTTP/1.1\r\n
+    * GET "/path/to/file.extension?query"  HTTP/1.1\r\n
+    * GET /path/to/file.extension?query  HTTP/1.0\r\n
+    */
+    
+    // makes sure method is GET
+    // create a buffer in which to hold line
+    char buffer[strlen(line)];
+    
+    // copy the line into the buffer for further parsing
+    strcpy(buffer, line);
+    
+    // parse up until the first space which should be the method
+    char* method = strtok(buffer, " ");
+    
+    // if the method is GET (the only supported method), continue, otherwise
+    if(strcmp(method, "GET") != 0)
+    {
+        // error
         error(405);
         return false;
     }
     
-    abs_path = strsep(cpyLine, "]" + 1);
+    // makes sure request target begins with /
+    // store the next token into target
+    // this token should end by the next space
+    char* target = strtok(NULL, " ");
     
-    if (abs_path[0] != '/') {
+    // if first character isn't /
+    if(target[0] != '/')
+    {
+        // error
         error(501);
         return false;
     }
-    char* HTTP_version = malloc(sizeof(char*));
-    HTTP_version = strsep(cpyLine, "\\");
-    if(strcasecmp(HTTP_version, "HTTP/1.1") != 0) {
+    
+    // otherwise, continue
+    
+    // makes sure the target doesn't contain any ""
+    // iterate over every character
+    for(int  i = 0, len = strlen(target); i < len; i++)
+    {
+        // if current character is a '
+        if(target[i] == '"')
+        {
+            error(400);
+            return false;
+        }
+    }
+    
+    // make sure version is HTTP/1.1 and \r\n
+    // The next token should be the version
+    // store the next token into a variable called version
+    char* version = strtok(NULL, " ");
+    
+    // compare HTTP/1.1 supported version vs whatever version the user
+    // may be using
+    if(strcmp(version, "HTTP/1.1\r\n") != 0)
+    {
+        // error if not supported
         error(505);
         return false;
     }
     
-    char* abs = abs_path;
-    if (strchr("\"", *abs)) {
-        error(400);
-        return false;
-    }
+    // else we continue
+    // store target up until ? in the abs_path if it exists
+    // else there's nothing to do
     
-    char** copyofAbs_path = malloc(sizeof(char**));
-    //copy line
-    strcpy(*copyofAbs_path, abs_path);
-    for (int i = 0, n = strlen(*copyofAbs_path); i < n; i++) {
-        for (int j = 0, m = strlen(*copyofAbs_path) - i; j < m; j++) {
-            if (*copyofAbs_path[i] == '/' && *copyofAbs_path[i+1] == '?') query[j] = *copyofAbs_path[i+2];
-            if (*copyofAbs_path[i] == '/' && *copyofAbs_path[i+1] != '?') query[j] = *copyofAbs_path[i+1];
-            // if (strlen(query)) < 1) query = "";
-            if (query[j] == '\0') break;
-        }
+    // to do this, let's iterate over all the chars in target
+    // break in case we find an ? or an space, whatever comes first
+    int i;
+    for(i = 0; target[i] != '?' && target[i] != ' '; i++)
+    {
+        abs_path[i] = target[i];
     }
+     
+    // store the query substring in target in query 
+    // it comes after ? and before an space
+    // if there's space after ? return ""
+    // else the substring before the space
     
-    free(HTTP_version);
-    free(abs);
-    free(method);
-    free(cpyLine);
-    free(copyofAbs_path);
-    return false;
+    if(target[i] == '?' && target[i + 1] != '\0')
+    {
+        i++;
+        for(int z = 0; target[i] != '\0'; i++, z++)
+        {
+            query[z] = target[i];
+            
+            if(target[i + 1] == '\0')
+            {
+                query[z + 1] = '\0';
+            }
+        }   
+        
+    }
+    else if(target[i] == '?' && target[i + 1] == '\0')
+    {
+        query[0] = '\0';   
+    }
+    else if(target[i] == '\0')
+    {
+        query[0] = '\0';
+    }
+    return true;
 }
-
 /**
  * Returns status code's reason phrase.
  *
