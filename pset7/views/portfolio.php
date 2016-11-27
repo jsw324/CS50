@@ -11,16 +11,27 @@
           </thead>
     
           <tbody>
+            <?php foreach ($cash as $money): ?>
+            <?php $dollars = $money["cash"] ?>
+            <?php endforeach ?>
             <?php foreach ($positions as $position): ?>
+            <?php $total = $position["price"] * $position["shares"] ?>
+            <?php $dollars -= $total ?>
             <tr>
               <td><?= $position["symbol"] ?></td>
               <td><?= $position["name"] ?></td>
               <td><?= $position["shares"] ?></td>
-              <td><?= $position["price"] ?></td>
-              <td><?= $position["price"] * $position["shares"] ?></td>
+              <td>$<?= money_format('%i', $position["price"]) ?></td>
+              <td>$<?= money_format('%i', $total) ?></td>
             </tr>
             <?php endforeach ?>
-           
+           <tr>
+               <td>CASH</td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td><strong>$<?= money_format('%i', $dollars) ?></strong></td>
+           </tr>
          </tbody>
     </table>
 </div>

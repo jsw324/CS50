@@ -22,7 +22,10 @@
             apologize("sorry, can't retreive stock symbol from portfolio");
         }
     }
+    
+    $cash = CS50::query("SELECT cash FROM users WHERE id = ?", $_SESSION["id"]);
+    
     // render portfolio
-    render("portfolio.php", ["title" => "Portfolio", "positions" => $positions]);
+    render("portfolio.php", ["title" => "Portfolio", "positions" => $positions, "cash" => $cash]);
 
 ?>
