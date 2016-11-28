@@ -18,7 +18,7 @@
             <?php $total = $position["price"] * $position["shares"] ?>
             <?php $dollars -= $total ?>
             <tr>
-              <td><?= $position["symbol"] ?></td>
+              <td><?= strtoupper($position["symbol"]) ?></td>
               <td><?= $position["name"] ?></td>
               <td><?= $position["shares"] ?></td>
               <td>$<?= money_format('%i', $position["price"]) ?></td>
