@@ -5,6 +5,7 @@
     
     $rows = CS50::query("SELECT * FROM portfolio WHERE user_id = ?", $_SESSION["id"]);
     
+    
     $positions = [];
     
     foreach ($rows as $row)

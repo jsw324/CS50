@@ -12,11 +12,12 @@
     
           <tbody>
             <?php foreach ($cash as $money): ?>
-            <?php $dollars = $money["cash"] ?>
+              <?php $dollars = $money["cash"] ?>
             <?php endforeach ?>
+            
             <?php foreach ($positions as $position): ?>
-            <?php $total = $position["price"] * $position["shares"] ?>
-            <?php $dollars -= $total ?>
+              <?php $total = $position["price"] * $position["shares"] ?>
+            
             <tr>
               <td><?= strtoupper($position["symbol"]) ?></td>
               <td><?= $position["name"] ?></td>

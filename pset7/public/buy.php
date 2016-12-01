@@ -11,7 +11,7 @@
             
             $stock = lookup($_POST["symbol"]);
             
-            $cost = $stock["price"] * intval($_POST["shares"]);
+            
             
             $cash = CS50::query("SELECT * FROM users WHERE id = ?", $_SESSION["id"]);
             
@@ -19,16 +19,26 @@
                 $dollar = $money["cash"];
             }
             
+            
+            $cost = $stock["price"] * intval($_POST["shares"]);
+            
             if (empty($cash) || empty($cost)) {
                 
                 apologize("cash is empty");
                
                
                // NEED TO IMPLEMENT rejection when cost is greater than cash.  Variable $cost is not populating with correct value.
-            } else if ($cost > $cash) {
+            } else if ($cost > $dollar) {
                 apologize("Sorry, you don't have enough cash");
             } else {
                 $buy = CS50::query("INSERT INTO portfolio (user_id, symbol, shares) VALUES(?, ?, ?) ON DUPLICATE KEY UPDATE shares = shares + ?", $_SESSION["id"], strtoupper($_POST["symbol"]), $_POST["shares"], $_POST["shares"]);
+                
+                //update cash to new values
+                $updateCash = CS50::query("UPDATE users SET cash = cash - $cost WHERE id = ?", $_SESSION["id"]);
+                
+                if (empty($updateCash) == true){
+                    apologize("cash not updated");
+                } 
                 
                 if ($buy == true){
                     redirect("/");
