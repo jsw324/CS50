@@ -18,7 +18,7 @@
               <td><?= strtoupper($past["transaction"]) ?></td>
               <td><?= $past["datetime"]  ?></td>
               <td><?= $past["symbol"] ?></td>
-              <td>$<?= $past["shares"] ?></td>
+              <td><?= $past["shares"] ?></td>
               <td>$<?= money_format('%i', $past["price"]) ?></td>
             </tr>
             <?php endforeach ?>
