@@ -33,6 +33,8 @@
             } else {
                 $buy = CS50::query("INSERT INTO portfolio (user_id, symbol, shares) VALUES(?, ?, ?) ON DUPLICATE KEY UPDATE shares = shares + ?", $_SESSION["id"], strtoupper($_POST["symbol"]), $_POST["shares"], $_POST["shares"]);
                 
+                $history = CS50::query("INSERT INTO history (user_id, transaction, symbol, datetime, shares, price) VALUES(?, ?, ?, ?, ?, ?)", $_SESSION["id"], "BUY", $_POST["symbol"], date('l jS \of F Y h:i:s A'), $_POST["shares"], $stock["price"]);
+                
                 //update cash to new values
                 $updateCash = CS50::query("UPDATE users SET cash = cash - $cost WHERE id = ?", $_SESSION["id"]);
                 
